@@ -1,10 +1,27 @@
-import React, { useState } from 'react';
-import { Plus, Search, Sparkles } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Plus, Search, Dices } from 'lucide-react';
 import { useRecipe } from '../context/RecipeContext';
+import { useToast } from '../context/ToastContext';
+import { useNavigate } from 'react-router-dom';
 
 export const SearchBar: React.FC = () => {
-  const { addIngredient, filterState, setFilterState } = useRecipe();
+  const { recipes, addIngredient, filterState, setFilterState } = useRecipe();
+  const { showToast } = useToast();
+  const navigate = useNavigate();
   const [inputVal, setInputVal] = useState('');
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Keyboard shortcut '/' to focus search input
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if (e.key === '/' && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, []);
 
   const handleAdd = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -13,6 +30,7 @@ export const SearchBar: React.FC = () => {
     // Handle comma separated input like "telur, sosis, wortel"
     const items = inputVal.split(',').map((s) => s.trim()).filter(Boolean);
     items.forEach((item) => addIngredient(item));
+    showToast(`Berhasil menambahkan ${items.length} bahan ke kulkas! ✨`);
     setInputVal('');
   };
 
@@ -21,6 +39,14 @@ export const SearchBar: React.FC = () => {
       e.preventDefault();
       handleAdd();
     }
+  };
+
+  const handleRandomRecipe = () => {
+    if (recipes.length === 0) return;
+    const randomIndex = Math.floor(Math.random() * recipes.length);
+    const selected = recipes[randomIndex];
+    showToast(`🎲 Membuka resep acak: ${selected.nama}`, 'info');
+    navigate(`/resep/${selected.id}`);
   };
 
   return (
@@ -46,16 +72,32 @@ export const SearchBar: React.FC = () => {
         </div>
       </form>
 
-      {/* Recipe Name Search Query */}
-      <div className="relative">
-        <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-emerald-300/70" />
-        <input
-          type="text"
-          value={filterState.searchQuery}
-          onChange={(e) => setFilterState((prev) => ({ ...prev, searchQuery: e.target.value }))}
-          placeholder="Cari resep favoritmu..."
-          className="w-full pl-11 pr-4 py-2.5 text-xs sm:text-sm rounded-xl bg-emerald-950/40 backdrop-blur-md border border-white/10 text-white placeholder:text-emerald-300/50 focus:outline-none focus:ring-2 focus:ring-amber-500/60 transition-all"
-        />
+      {/* Recipe Search & Random Recipe Row */}
+      <div className="flex flex-col sm:flex-row gap-2">
+        <div className="relative flex-1">
+          <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-emerald-300/70" />
+          <input
+            ref={searchInputRef}
+            type="text"
+            value={filterState.searchQuery}
+            onChange={(e) => setFilterState((prev) => ({ ...prev, searchQuery: e.target.value }))}
+            placeholder="Cari nama resep atau bahan... (Tekan '/' untuk fokus)"
+            className="w-full pl-11 pr-12 py-2.5 text-xs sm:text-sm rounded-xl bg-emerald-950/40 backdrop-blur-md border border-white/10 text-white placeholder:text-emerald-300/50 focus:outline-none focus:ring-2 focus:ring-amber-500/60 transition-all"
+          />
+          <kbd className="hidden sm:inline-block absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/10 text-emerald-300 border border-white/15">
+            /
+          </kbd>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleRandomRecipe}
+          className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-amber-300 font-bold text-xs flex items-center justify-center gap-1.5 shadow-md transition-all active:scale-95 cursor-pointer shrink-0"
+          title="Pilih resep acak untukmu!"
+        >
+          <Dices className="w-4 h-4 text-amber-400" />
+          <span>Acak Resep</span>
+        </button>
       </div>
     </div>
   );

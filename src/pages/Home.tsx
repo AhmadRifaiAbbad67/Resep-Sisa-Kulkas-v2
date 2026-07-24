@@ -1,15 +1,15 @@
 import React, { useMemo, useState } from 'react';
-import { ChefHat, Sparkles, Utensils, AlertCircle, ArrowUpRight } from 'lucide-react';
+import { ChefHat, Sparkles, AlertCircle, RotateCcw } from 'lucide-react';
 import { useRecipe } from '../context/RecipeContext';
 import { SearchBar } from '../components/SearchBar';
 import { TagBahan } from '../components/TagBahan';
 import { FilterBar } from '../components/FilterBar';
 import { CardResep } from '../components/CardResep';
 import { AIRecipeModal } from '../components/AIRecipeModal';
-import { LoadingSkeleton } from '../components/LoadingSkeleton';
+import { FoodWasteCounter } from '../components/FoodWasteCounter';
 
 export const Home: React.FC = () => {
-  const { recipes, userIngredients, filterState } = useRecipe();
+  const { recipes, userIngredients, filterState, resetFilters } = useRecipe();
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'all' | 'match_only'>('all');
 
@@ -37,13 +37,17 @@ export const Home: React.FC = () => {
           return false;
         }
 
-        // Search query
-        if (
-          filterState.searchQuery &&
-          !recipe.nama.toLowerCase().includes(filterState.searchQuery.toLowerCase()) &&
-          !recipe.deskripsi.toLowerCase().includes(filterState.searchQuery.toLowerCase())
-        ) {
-          return false;
+        // Search query (Search name, description, category, and ingredient list)
+        if (filterState.searchQuery) {
+          const q = filterState.searchQuery.toLowerCase();
+          const matchesName = recipe.nama.toLowerCase().includes(q);
+          const matchesDesc = recipe.deskripsi.toLowerCase().includes(q);
+          const matchesCategory = recipe.kategori.toLowerCase().includes(q);
+          const matchesIngredients = recipe.bahan.some((b) => b.toLowerCase().includes(q));
+
+          if (!matchesName && !matchesDesc && !matchesCategory && !matchesIngredients) {
+            return false;
+          }
         }
 
         // Max Duration
@@ -129,6 +133,11 @@ export const Home: React.FC = () => {
           <TagBahan onOpenAiGenerator={() => setIsAiModalOpen(true)} />
         </section>
 
+        {/* Impact Counter Widget */}
+        <section>
+          <FoodWasteCounter />
+        </section>
+
         {/* Filters & Sorting */}
         <section>
           <FilterBar />
@@ -196,17 +205,27 @@ export const Home: React.FC = () => {
                   Tidak Ada Resep yang Sesuai Filter
                 </h3>
                 <p className="text-xs sm:text-sm text-emerald-200/90 leading-relaxed">
-                  Coba kurangi batasan filter atau gunakan fitur Koki AI kami untuk membuatkan resep kustom instan dari bahan di kulkasmu!
+                  Coba atur ulang filter, kurangi kata pencarian, atau minta Koki AI kami untuk membuatkan resep kustom dari bahanmu!
                 </p>
               </div>
 
-              <button
-                onClick={() => setIsAiModalOpen(true)}
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-emerald-950 font-extrabold text-xs sm:text-sm shadow-lg shadow-amber-500/20 transition-all active:scale-95 cursor-pointer"
-              >
-                <Sparkles className="w-4 h-4 text-emerald-950" />
-                <span>Minta AI Buatkan Resep Baru</span>
-              </button>
+              <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                <button
+                  onClick={resetFilters}
+                  className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm border border-white/20 transition-all cursor-pointer"
+                >
+                  <RotateCcw className="w-4 h-4 text-amber-300" />
+                  <span>Reset Filter</span>
+                </button>
+
+                <button
+                  onClick={() => setIsAiModalOpen(true)}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-emerald-950 font-extrabold text-xs sm:text-sm shadow-lg shadow-amber-500/20 transition-all active:scale-95 cursor-pointer"
+                >
+                  <Sparkles className="w-4 h-4 text-emerald-950" />
+                  <span>Minta AI Buatkan Resep Baru</span>
+                </button>
+              </div>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

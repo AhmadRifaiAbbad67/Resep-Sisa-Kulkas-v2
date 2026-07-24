@@ -64,4 +64,28 @@
   animation: pulseGlow 3s ease-in-out infinite;
 }
 
+/* Print Stylesheet */
+@media print {
+  header, footer, nav, button, .no-print {
+    display: none !important;
+  }
+  
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  
+  .print-area {
+    background: white !important;
+    color: black !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  
+  .print-area * {
+    color: black !important;
+  }
+}
+
+
 

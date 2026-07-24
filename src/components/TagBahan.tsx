@@ -1,6 +1,7 @@
 import React from 'react';
 import { X, Plus, Trash2, Sparkles } from 'lucide-react';
 import { useRecipe } from '../context/RecipeContext';
+import { useToast } from '../context/ToastContext';
 import { POPULAR_INGREDIENTS } from '../data/recipes';
 
 interface TagBahanProps {
@@ -9,6 +10,23 @@ interface TagBahanProps {
 
 export const TagBahan: React.FC<TagBahanProps> = ({ onOpenAiGenerator }) => {
   const { userIngredients, removeIngredient, addIngredient, clearIngredients } = useRecipe();
+  const { showToast } = useToast();
+
+  const handleClear = () => {
+    clearIngredients();
+    showToast('Isi kulkas dibersihkan', 'info');
+  };
+
+  const handleToggle = (item: string) => {
+    const isAdded = userIngredients.some((i) => i.toLowerCase() === item.toLowerCase());
+    if (isAdded) {
+      removeIngredient(item);
+      showToast(`Menghapus ${item} dari kulkas`, 'info');
+    } else {
+      addIngredient(item);
+      showToast(`Menambahkan ${item} ke kulkas ✨`);
+    }
+  };
 
   return (
     <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-5 sm:p-6 shadow-2xl border border-white/20 transition-all text-white">
@@ -24,7 +42,7 @@ export const TagBahan: React.FC<TagBahanProps> = ({ onOpenAiGenerator }) => {
 
         {userIngredients.length > 0 && (
           <button
-            onClick={clearIngredients}
+            onClick={handleClear}
             className="text-xs text-rose-300 hover:text-rose-100 flex items-center gap-1 font-semibold transition-colors cursor-pointer"
           >
             <Trash2 className="w-3.5 h-3.5" />
@@ -49,7 +67,10 @@ export const TagBahan: React.FC<TagBahanProps> = ({ onOpenAiGenerator }) => {
             >
               <span>{item}</span>
               <button
-                onClick={() => removeIngredient(item)}
+                onClick={() => {
+                  removeIngredient(item);
+                  showToast(`Menghapus ${item}`, 'info');
+                }}
                 className="hover:text-amber-400 rounded-full p-0.5 text-emerald-200 transition-colors cursor-pointer"
                 title={`Hapus ${item}`}
                 aria-label={`Hapus ${item}`}
@@ -72,7 +93,7 @@ export const TagBahan: React.FC<TagBahanProps> = ({ onOpenAiGenerator }) => {
             return (
               <button
                 key={item}
-                onClick={() => (isAdded ? removeIngredient(item) : addIngredient(item))}
+                onClick={() => handleToggle(item)}
                 className={`inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
                   isAdded
                     ? 'bg-amber-500 text-emerald-950 font-extrabold shadow-md'
