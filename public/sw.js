@@ -1,10 +1,12 @@
-const CACHE_NAME = 'resep-kulkas-v2';
+const CACHE_NAME = 'resep-kulkas-v3';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
   '/manifest.json',
   '/icon.svg',
-  '/og-image.svg'
+  '/og-image.svg',
+  '/assets/index-Bd4M0XT3.js',
+  '/assets/index-CBVcJNQx.css'
 ];
 
 self.addEventListener('install', (event) => {

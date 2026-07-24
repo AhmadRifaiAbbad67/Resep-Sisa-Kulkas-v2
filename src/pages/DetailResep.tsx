@@ -228,7 +228,7 @@ export const DetailResep: React.FC = () => {
           </div>
 
           {/* Stat Badges */}
-          <div className="grid grid-cols-3 gap-3 p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 text-center print:bg-gray-100 print:text-black print:border-gray-300">
+          <div className={`grid ${recipe.kalori ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-3'} gap-3 p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 text-center print:bg-gray-100 print:text-black print:border-gray-300`}>
             
             <div className="space-y-0.5">
               <div className="flex items-center justify-center gap-1 text-amber-400 print:text-black font-bold text-xs uppercase tracking-wider">
@@ -250,7 +250,7 @@ export const DetailResep: React.FC = () => {
               </p>
             </div>
 
-            <div className="space-y-0.5">
+            <div className={`space-y-0.5 ${recipe.kalori ? 'border-r border-white/15 sm:border-r-0' : ''} print:border-gray-300`}>
               <div className="flex items-center justify-center gap-1 text-rose-300 print:text-black font-bold text-xs uppercase tracking-wider">
                 <Flame className="w-4 h-4" />
                 <span>Kesulitan</span>
@@ -259,6 +259,18 @@ export const DetailResep: React.FC = () => {
                 {recipe.kesulitan}
               </p>
             </div>
+
+            {recipe.kalori && (
+              <div className="space-y-0.5 border-t sm:border-t-0 sm:border-l border-white/15 pt-2 sm:pt-0 print:border-gray-300">
+                <div className="flex items-center justify-center gap-1 text-amber-300 print:text-black font-bold text-xs uppercase tracking-wider">
+                  <Flame className="w-4 h-4 text-amber-400" />
+                  <span>Kalori</span>
+                </div>
+                <p className="font-heading font-extrabold text-base sm:text-lg text-amber-300 print:text-black">
+                  ~{recipe.kalori} kkal
+                </p>
+              </div>
+            )}
 
           </div>
 
