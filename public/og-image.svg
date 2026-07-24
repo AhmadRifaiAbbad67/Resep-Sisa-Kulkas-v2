@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#022c22" />
+      <stop offset="50%" stop-color="#059669" />
+      <stop offset="100%" stop-color="#064e3b" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)" />
+  <circle cx="1050" cy="100" r="250" fill="#f59e0b" opacity="0.15" />
+  <circle cx="100" cy="550" r="200" fill="#10b981" opacity="0.2" />
+  
+  <rect x="100" y="140" width="100" height="100" rx="28" fill="#f59e0b"/>
+  <path d="M150 160c-15 0-27 12-27 27 0 2.8.4 5.5 1.2 8-9 3.5-14.7 12.3-14.7 22 0 13.2 10.7 23.8 23.8 23.8h34c13.2 0 23.8-10.7 23.8-23.8 0-9.7-5.7-18.5-14.7-22 .8-2.5 1.2-5.2 1.2-8 0-15-12-27-27-27z" fill="#022c22"/>
+
+  <text x="100" y="320" font-family="'Outfit', sans-serif" font-size="64" font-weight="800" fill="#ffffff">
+    Resep Sisa Kulkas
+  </text>
+  <text x="100" y="380" font-family="'Plus Jakarta Sans', sans-serif" font-size="32" font-weight="600" fill="#fde68a">
+    Solusi Cerdas Olah Bahan Sisa Masakan Jadi Hidangan Lezat
+  </text>
+  <text x="100" y="440" font-family="'Plus Jakarta Sans', sans-serif" font-size="24" fill="#a7f3d0">
+    Fitur Koki AI • Filter Komprehensif • Timer Masak • WhatsApp Share
+  </text>
+</svg>

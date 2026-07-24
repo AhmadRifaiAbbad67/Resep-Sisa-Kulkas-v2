@@ -80,8 +80,8 @@ export const RecipeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   useEffect(() => {
     try {
       localStorage.setItem('sisa_kulkas_ingredients', JSON.stringify(userIngredients));
-    } catch (e) {
-      console.error('Failed to save ingredients to localStorage', e);
+    } catch {
+      // Ignore or handled silently
     }
   }, [userIngredients]);
 
@@ -89,8 +89,8 @@ export const RecipeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   useEffect(() => {
     try {
       localStorage.setItem('sisa_kulkas_favorites', JSON.stringify(favorites));
-    } catch (e) {
-      console.error('Failed to save favorites to localStorage', e);
+    } catch {
+      // Ignore or handled silently
     }
   }, [favorites]);
 
@@ -98,8 +98,8 @@ export const RecipeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   useEffect(() => {
     try {
       localStorage.setItem('sisa_kulkas_ai_recipes', JSON.stringify(aiRecipes));
-    } catch (e) {
-      console.error('Failed to save AI recipes', e);
+    } catch {
+      // Ignore or handled silently
     }
   }, [aiRecipes]);
 

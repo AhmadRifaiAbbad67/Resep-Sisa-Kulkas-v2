@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Clock, Heart, Users, Sparkles, ChefHat, CheckCircle2 } from 'lucide-react';
+import { Clock, Heart, Users, Sparkles, ChefHat, CheckCircle2, Flame } from 'lucide-react';
 import { Recipe } from '../types';
 import { useRecipe } from '../context/RecipeContext';
 
@@ -101,17 +101,24 @@ export const CardResep: React.FC<CardResepProps> = ({
             {recipe.deskripsi}
           </p>
 
-          {/* Quick Stats (Duration, Difficulty, Portions) */}
-          <div className="flex items-center gap-4 mt-3 pt-3 border-t border-white/10 text-xs text-emerald-200">
+          {/* Quick Stats (Duration, Difficulty, Portions, Calories) */}
+          <div className="flex items-center flex-wrap gap-2 sm:gap-3 mt-3 pt-3 border-t border-white/10 text-xs text-emerald-200">
             <div className="flex items-center gap-1 font-semibold">
               <Clock className="w-3.5 h-3.5 text-amber-400" />
-              <span>{recipe.durasi} menit</span>
+              <span>{recipe.durasi}m</span>
             </div>
 
             <div className="flex items-center gap-1 font-semibold">
               <Users className="w-3.5 h-3.5 text-emerald-300" />
               <span>{recipe.porsi} porsi</span>
             </div>
+
+            {recipe.kalori && (
+              <div className="flex items-center gap-1 font-semibold text-amber-300">
+                <Flame className="w-3.5 h-3.5 text-amber-400" />
+                <span>~{recipe.kalori} kcal</span>
+              </div>
+            )}
 
             <div className="ml-auto">
               <span

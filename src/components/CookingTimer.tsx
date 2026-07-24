@@ -27,8 +27,8 @@ export const CookingTimer: React.FC = () => {
         osc.connect(audioCtx.destination);
         osc.start();
         osc.stop(audioCtx.currentTime + 0.8);
-      } catch (e) {
-        console.log('Audio Context beep prevented', e);
+      } catch {
+        // Web audio playback prevented or unavailable
       }
     }
 
