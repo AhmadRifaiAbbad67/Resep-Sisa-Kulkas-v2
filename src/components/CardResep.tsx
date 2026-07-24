@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Clock, Heart, Users, Sparkles, ChefHat, CheckCircle2, Flame } from 'lucide-react';
 import { Recipe } from '../types';
 import { useRecipe } from '../context/RecipeContext';
+import { useInView } from '../hooks/useInView';
 
 interface CardResepProps {
   recipe: Recipe;
@@ -17,6 +18,7 @@ export const CardResep: React.FC<CardResepProps> = ({
 }) => {
   const { isFavorite, toggleFavorite, userIngredients } = useRecipe();
   const favorite = isFavorite(recipe.id);
+  const [cardRef, isInView] = useInView<HTMLDivElement>();
 
   // Calculate matching ingredients from user list
   const matchedUserIngredients = recipe.bahan.filter((reqBahan) =>
@@ -31,7 +33,12 @@ export const CardResep: React.FC<CardResepProps> = ({
       : 0;
 
   return (
-    <div className="group bg-white/10 backdrop-blur-xl rounded-3xl overflow-hidden border border-white/20 shadow-xl hover:shadow-2xl hover:border-amber-400/50 transition-all duration-300 flex flex-col h-full hover:-translate-y-1 text-white">
+    <div
+      ref={cardRef}
+      className={`group bg-white/10 backdrop-blur-xl rounded-3xl overflow-hidden border border-white/20 shadow-xl hover:shadow-2xl hover:border-amber-400/50 transition-all duration-300 flex flex-col h-full hover:-translate-y-1 text-white ${
+        isInView ? 'animate-fade-in-up' : 'opacity-0'
+      }`}
+    >
       
       {/* Image & Badges Banner */}
       <div className="relative aspect-16/10 overflow-hidden bg-emerald-950/60">
