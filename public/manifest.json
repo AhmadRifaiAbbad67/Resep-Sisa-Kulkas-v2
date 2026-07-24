@@ -1,0 +1,21 @@
+{
+  "short_name": "SisaKulkas",
+  "name": "Resep Sisa Kulkas",
+  "icons": [
+    {
+      "src": "https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=192&auto=format&fit=crop&q=80",
+      "type": "image/jpeg",
+      "sizes": "192x192"
+    },
+    {
+      "src": "https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=512&auto=format&fit=crop&q=80",
+      "type": "image/jpeg",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#059669",
+  "theme_color": "#059669",
+  "display": "standalone",
+  "orientation": "portrait"
+}

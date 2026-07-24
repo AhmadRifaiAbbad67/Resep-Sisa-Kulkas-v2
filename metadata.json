@@ -1,0 +1,6 @@
+{
+  "name": "Resep Sisa Kulkas",
+  "description": "Aplikasi penemu resep masakan kreatif dari bahan sisa kulkas dengan AI generator Gemini dan koleksi resep khas Indonesia.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
