@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { useRecipe } from '../context/RecipeContext';
 import { Recipe } from '../types';
 
+import { useToast } from '../context/ToastContext';
+
 interface AIRecipeModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -11,6 +13,7 @@ interface AIRecipeModalProps {
 
 export const AIRecipeModal: React.FC<AIRecipeModalProps> = ({ isOpen, onClose }) => {
   const { userIngredients, addAiRecipe, toggleFavorite } = useRecipe();
+  const { showToast } = useToast();
   const navigate = useNavigate();
 
   const [extraNotes, setExtraNotes] = useState('');
@@ -57,9 +60,11 @@ export const AIRecipeModal: React.FC<AIRecipeModalProps> = ({ isOpen, onClose })
 
       setGeneratedRecipe(data.recipe);
       addAiRecipe(data.recipe);
+      showToast('Resep AI berhasil dibuat! ✨');
     } catch (err: any) {
-      console.error(err);
-      setErrorMessage(err.message || 'Terjadi kesalahan saat menghubungkan ke Koki AI.');
+      const msg = err.message || 'Terjadi kesalahan saat menghubungkan ke Koki AI.';
+      setErrorMessage(msg);
+      showToast(msg, 'error');
     } finally {
       setLoadingMode('none');
     }
@@ -97,12 +102,12 @@ export const AIRecipeModal: React.FC<AIRecipeModalProps> = ({ isOpen, onClose })
           setLoadingMode('none');
         }
       } catch (e) {
-        console.error('SSE parse error', e);
+        showToast('Terjadi kesalahan memproses data SSE.', 'error');
       }
     };
 
-    eventSource.onerror = (err) => {
-      console.error('SSE connection error:', err);
+    eventSource.onerror = () => {
+      showToast('Koneksi streaming terputus.', 'error');
       eventSource.close();
       setLoadingMode('none');
     };

@@ -1,10 +1,11 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { ChefHat, Sparkles, AlertCircle, RotateCcw } from 'lucide-react';
 import { useRecipe } from '../context/RecipeContext';
 import { SearchBar } from '../components/SearchBar';
 import { TagBahan } from '../components/TagBahan';
 import { FilterBar } from '../components/FilterBar';
 import { CardResep } from '../components/CardResep';
+import { CardSkeleton } from '../components/CardSkeleton';
 import { AIRecipeModal } from '../components/AIRecipeModal';
 import { FoodWasteCounter } from '../components/FoodWasteCounter';
 
@@ -12,6 +13,14 @@ export const Home: React.FC = () => {
   const { recipes, userIngredients, filterState, resetFilters } = useRecipe();
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'all' | 'match_only'>('all');
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Trigger brief skeleton loading effect on filter/search change
+  useEffect(() => {
+    setIsLoading(true);
+    const timer = setTimeout(() => setIsLoading(false), 200);
+    return () => clearTimeout(timer);
+  }, [filterState, userIngredients, activeTab]);
 
   // Compute matches and filter recipes
   const processedRecipes = useMemo(() => {
@@ -195,7 +204,9 @@ export const Home: React.FC = () => {
           </div>
 
           {/* Recipe Grid */}
-          {processedRecipes.length === 0 ? (
+          {isLoading ? (
+            <CardSkeleton count={6} />
+          ) : processedRecipes.length === 0 ? (
             <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 sm:p-12 text-center border border-white/20 space-y-4 max-w-xl mx-auto shadow-2xl text-white">
               <div className="w-16 h-16 rounded-2xl bg-amber-500/20 border border-amber-400/30 text-amber-300 flex items-center justify-center mx-auto">
                 <AlertCircle className="w-8 h-8" />

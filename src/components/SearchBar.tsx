@@ -9,7 +9,28 @@ export const SearchBar: React.FC = () => {
   const { showToast } = useToast();
   const navigate = useNavigate();
   const [inputVal, setInputVal] = useState('');
+  const [searchInput, setSearchInput] = useState(filterState.searchQuery);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Sync searchInput when filterState changes externally (e.g. reset)
+  useEffect(() => {
+    setSearchInput(filterState.searchQuery);
+  }, [filterState.searchQuery]);
+
+  // Debounce search update (300ms)
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setSearchInput(val);
+
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    debounceTimerRef.current = setTimeout(() => {
+      setFilterState((prev) => ({ ...prev, searchQuery: val }));
+    }, 300);
+  };
 
   // Keyboard shortcut '/' to focus search input
   useEffect(() => {
@@ -79,8 +100,8 @@ export const SearchBar: React.FC = () => {
           <input
             ref={searchInputRef}
             type="text"
-            value={filterState.searchQuery}
-            onChange={(e) => setFilterState((prev) => ({ ...prev, searchQuery: e.target.value }))}
+            value={searchInput}
+            onChange={handleSearchChange}
             placeholder="Cari nama resep atau bahan... (Tekan '/' untuk fokus)"
             className="w-full pl-11 pr-12 py-2.5 text-xs sm:text-sm rounded-xl bg-emerald-950/40 backdrop-blur-md border border-white/10 text-white placeholder:text-emerald-300/50 focus:outline-none focus:ring-2 focus:ring-amber-500/60 transition-all"
           />
