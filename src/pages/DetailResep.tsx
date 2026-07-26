@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, Link, useNavigate, Navigate } from 'react-router-dom';
 import {
   ArrowLeft,
   Clock,
@@ -7,7 +7,6 @@ import {
   Users,
   CheckCircle2,
   Sparkles,
-  ChefHat,
   Flame,
   Utensils,
   BookOpen,
@@ -22,38 +21,40 @@ import { useRecipe } from '../context/RecipeContext';
 import { useToast } from '../context/ToastContext';
 import { CardResep } from '../components/CardResep';
 import { CookingTimer } from '../components/CookingTimer';
+import { ShoppingList } from '../components/ShoppingList';
+
+function fallbackCopy(text: string) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  document.execCommand('copy');
+  document.body.removeChild(ta);
+}
 
 export const DetailResep: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { recipes, isFavorite, toggleFavorite, userIngredients } = useRecipe();
+  const { recipes, isFavorite, toggleFavorite, userIngredients, addRecentRecipe } = useRecipe();
   const { showToast } = useToast();
 
   const recipe = recipes.find((r) => r.id === id);
 
   // Checked state for step-by-step interactive cooking
   const [checkedSteps, setCheckedSteps] = useState<Record<number, boolean>>({});
+  // Portion scaler state
+  const [portionScale, setPortionScale] = useState<number>(1);
+
+  useEffect(() => {
+    if (recipe) {
+      addRecentRecipe(recipe.id);
+    }
+  }, [recipe?.id]);
 
   if (!recipe) {
-    return (
-      <div className="min-h-[70vh] flex flex-col items-center justify-center p-4 text-center space-y-4 text-white">
-        <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center text-amber-300">
-          <ChefHat className="w-8 h-8" />
-        </div>
-        <h2 className="font-heading font-bold text-2xl text-white">
-          Resep Tidak Ditemukan
-        </h2>
-        <p className="text-sm text-emerald-200/80 max-w-md">
-          Resep yang kamu cari tidak ada atau telah dihapus.
-        </p>
-        <Link
-          to="/"
-          className="px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-emerald-950 font-extrabold rounded-xl text-sm transition-all shadow-lg active:scale-95"
-        >
-          Kembali ke Beranda
-        </Link>
-      </div>
-    );
+    return <Navigate to="/404" replace />;
   }
 
   const favorite = isFavorite(recipe.id);
@@ -78,23 +79,42 @@ export const DetailResep: React.FC = () => {
   const handleShareWhatsApp = () => {
     const title = `🍳 *RESEP: ${recipe.nama.toUpperCase()}*`;
     const desc = recipe.deskripsi;
-    const info = `⏱ Durasi: ${recipe.durasi} menit | 👥 Porsi: ${recipe.porsi} | ⚡ Kesulitan: ${recipe.kesulitan}`;
+    const info = `⏱ Durasi: ${recipe.durasi} menit | 👥 Porsi: ${recipe.porsi * portionScale} | ⚡ Kesulitan: ${recipe.kesulitan}`;
     
-    const bahanText = recipe.bahan.map((b) => `• ${b}`).join('\n');
+    const bahanText = recipe.bahan
+      .map((item) => {
+        const scaled = portionScale > 1 ? item.replace(/(\d+([.,]\d+)?)/g, (m) => String(Number(m.replace(',', '.')) * portionScale)) : item;
+        return `• ${scaled}`;
+      })
+      .join('\n');
     const langkahText = recipe.langkah.map((l, i) => `${i + 1}. ${l}`).join('\n');
 
     const fullMessage = `${title}\n${desc}\n\n${info}\n\n*BAHAN-BAHAN:*\n${bahanText}\n\n*LANGKAH MASAK:*\n${langkahText}\n\n_Dibuat dengan Aplikasi Resep Sisa Kulkas_ 🥬🍳`;
 
     const encoded = encodeURIComponent(fullMessage);
-    window.open(`https://wa.me/?text=${encoded}`, '_blank');
+    window.location.href = `https://wa.me/?text=${encoded}`;
   };
 
   // 2. Copy Recipe Text to Clipboard
   const handleCopyRecipe = () => {
-    const text = `🍳 ${recipe.nama}\n\n${recipe.deskripsi}\n\nDurasi: ${recipe.durasi} Mnt | Porsi: ${recipe.porsi} Orang\n\nBAHAN-BAHAN:\n${recipe.bahan.map(b => `- ${b}`).join('\n')}\n\nLANGKAH MASAK:\n${recipe.langkah.map((l, i) => `${i + 1}. ${l}`).join('\n')}`;
+    const text = `🍳 ${recipe.nama}\n\n${recipe.deskripsi}\n\nDurasi: ${recipe.durasi} Mnt | Porsi: ${recipe.porsi * portionScale} Orang\n\nBAHAN-BAHAN:\n${recipe.bahan
+      .map((item) => {
+        const scaled = portionScale > 1 ? item.replace(/(\d+([.,]\d+)?)/g, (m) => String(Number(m.replace(',', '.')) * portionScale)) : item;
+        return `- ${scaled}`;
+      })
+      .join('\n')}\n\nLANGKAH MASAK:\n${recipe.langkah.map((l, i) => `${i + 1}. ${l}`).join('\n')}`;
     
-    navigator.clipboard.writeText(text);
-    showToast('Teks resep berhasil disalin ke clipboard! 📋');
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('Teks resep berhasil disalin! 📋');
+      }).catch(() => {
+        fallbackCopy(text);
+        showToast('Teks resep berhasil disalin! 📋');
+      });
+    } else {
+      fallbackCopy(text);
+      showToast('Teks resep berhasil disalin! 📋');
+    }
   };
 
   // 3. Print Recipe
@@ -227,51 +247,73 @@ export const DetailResep: React.FC = () => {
             </p>
           </div>
 
-          {/* Stat Badges */}
-          <div className={`grid ${recipe.kalori ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-3'} gap-3 p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 text-center print:bg-gray-100 print:text-black print:border-gray-300`}>
-            
-            <div className="space-y-0.5">
-              <div className="flex items-center justify-center gap-1 text-amber-400 print:text-black font-bold text-xs uppercase tracking-wider">
-                <Clock className="w-4 h-4" />
-                <span>Durasi</span>
-              </div>
-              <p className="font-heading font-extrabold text-base sm:text-lg text-white print:text-black">
-                {recipe.durasi} Mnt
-              </p>
-            </div>
-
-            <div className="space-y-0.5 border-x border-white/15 print:border-gray-300">
-              <div className="flex items-center justify-center gap-1 text-emerald-300 print:text-black font-bold text-xs uppercase tracking-wider">
-                <Users className="w-4 h-4" />
-                <span>Porsi</span>
-              </div>
-              <p className="font-heading font-extrabold text-base sm:text-lg text-white print:text-black">
-                {recipe.porsi} Orang
-              </p>
-            </div>
-
-            <div className={`space-y-0.5 ${recipe.kalori ? 'border-r border-white/15 sm:border-r-0' : ''} print:border-gray-300`}>
-              <div className="flex items-center justify-center gap-1 text-rose-300 print:text-black font-bold text-xs uppercase tracking-wider">
-                <Flame className="w-4 h-4" />
-                <span>Kesulitan</span>
-              </div>
-              <p className="font-heading font-extrabold text-base sm:text-lg text-white print:text-black capitalize">
-                {recipe.kesulitan}
-              </p>
-            </div>
-
-            {recipe.kalori && (
-              <div className="space-y-0.5 border-t sm:border-t-0 sm:border-l border-white/15 pt-2 sm:pt-0 print:border-gray-300">
-                <div className="flex items-center justify-center gap-1 text-amber-300 print:text-black font-bold text-xs uppercase tracking-wider">
-                  <Flame className="w-4 h-4 text-amber-400" />
-                  <span>Kalori</span>
+          {/* Stat Badges + Portion Scaler */}
+          <div className="space-y-3">
+            <div className={`grid ${recipe.kalori ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-3'} gap-3 p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 text-center print:bg-gray-100 print:text-black print:border-gray-300`}>
+              
+              <div className="space-y-0.5">
+                <div className="flex items-center justify-center gap-1 text-amber-400 print:text-black font-bold text-xs uppercase tracking-wider">
+                  <Clock className="w-4 h-4" />
+                  <span>Durasi</span>
                 </div>
-                <p className="font-heading font-extrabold text-base sm:text-lg text-amber-300 print:text-black">
-                  ~{recipe.kalori} kkal
+                <p className="font-heading font-extrabold text-base sm:text-lg text-white print:text-black">
+                  {recipe.durasi} Mnt
                 </p>
               </div>
-            )}
 
+              <div className="space-y-0.5 border-x border-white/15 print:border-gray-300">
+                <div className="flex items-center justify-center gap-1 text-emerald-300 print:text-black font-bold text-xs uppercase tracking-wider">
+                  <Users className="w-4 h-4" />
+                  <span>Porsi ({portionScale}x)</span>
+                </div>
+                <p className="font-heading font-extrabold text-base sm:text-lg text-white print:text-black">
+                  {recipe.porsi * portionScale} Orang
+                </p>
+              </div>
+
+              <div className={`space-y-0.5 ${recipe.kalori ? 'border-r border-white/15 sm:border-r-0' : ''} print:border-gray-300`}>
+                <div className="flex items-center justify-center gap-1 text-rose-300 print:text-black font-bold text-xs uppercase tracking-wider">
+                  <Flame className="w-4 h-4" />
+                  <span>Kesulitan</span>
+                </div>
+                <p className="font-heading font-extrabold text-base sm:text-lg text-white print:text-black capitalize">
+                  {recipe.kesulitan}
+                </p>
+              </div>
+
+              {recipe.kalori && (
+                <div className="space-y-0.5 border-t sm:border-t-0 sm:border-l border-white/15 pt-2 sm:pt-0 print:border-gray-300">
+                  <div className="flex items-center justify-center gap-1 text-amber-300 print:text-black font-bold text-xs uppercase tracking-wider">
+                    <Flame className="w-4 h-4 text-amber-400" />
+                    <span>Kalori</span>
+                  </div>
+                  <p className="font-heading font-extrabold text-base sm:text-lg text-amber-300 print:text-black">
+                    ~{recipe.kalori * portionScale} kkal
+                  </p>
+                </div>
+              )}
+
+            </div>
+
+            {/* Portion Scaler Selector Bar */}
+            <div className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/10 no-print">
+              <span className="text-xs font-bold text-emerald-200">Ubah Skala Resep:</span>
+              <div className="flex items-center gap-1.5">
+                {[1, 2, 3, 4].map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => setPortionScale(s)}
+                    className={`px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                      portionScale === s
+                        ? 'bg-amber-500 text-emerald-950 shadow-md scale-105'
+                        : 'bg-white/10 hover:bg-white/20 text-white'
+                    }`}
+                  >
+                    {s}x
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* Main Grid: Ingredients & Steps */}
@@ -288,6 +330,10 @@ export const DetailResep: React.FC = () => {
 
               <ul className="space-y-2.5">
                 {recipe.bahan.map((item, idx) => {
+                  const scaledItem = portionScale > 1
+                    ? item.replace(/(\d+([.,]\d+)?)/g, (m) => String(Number(m.replace(',', '.')) * portionScale))
+                    : item;
+
                   const isUserHas = userIngredients.some((u) =>
                     item.toLowerCase().includes(u.toLowerCase())
                   );
@@ -306,7 +352,7 @@ export const DetailResep: React.FC = () => {
                       ) : (
                         <span className="w-2 h-2 rounded-full bg-emerald-400/60 print:bg-black shrink-0" />
                       )}
-                      <span className="flex-1">{item}</span>
+                      <span className="flex-1">{scaledItem}</span>
                       {isUserHas && (
                         <span className="text-[10px] font-extrabold bg-amber-500 text-emerald-950 px-2 py-0.5 rounded-full shadow-sm no-print">
                           Ada di Kulkas
@@ -316,6 +362,16 @@ export const DetailResep: React.FC = () => {
                   );
                 })}
               </ul>
+
+              {/* Shopping List Interactive Checklist */}
+              <ShoppingList
+                bahan={recipe.bahan.map((item) =>
+                  portionScale > 1
+                    ? item.replace(/(\d+([.,]\d+)?)/g, (m) => String(Number(m.replace(',', '.')) * portionScale))
+                    : item
+                )}
+                recipeName={recipe.nama}
+              />
 
               {/* Anti-food waste tip callout */}
               <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-start gap-2.5 text-xs text-amber-200 print:bg-gray-100 print:text-black print:border-gray-300 no-print">

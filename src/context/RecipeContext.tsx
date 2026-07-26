@@ -8,6 +8,11 @@ interface RecipeContextType {
   favorites: Recipe[];
   theme: 'light' | 'dark';
   filterState: FilterState;
+  isAiModalOpen: boolean;
+  recentRecipes: string[];
+  openAiModal: () => void;
+  closeAiModal: () => void;
+  addRecentRecipe: (id: string) => void;
   addIngredient: (ingredient: string) => void;
   removeIngredient: (ingredient: string) => void;
   clearIngredients: () => void;
@@ -75,6 +80,35 @@ export const RecipeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   // 5. Filter state
   const [filterState, setFilterState] = useState<FilterState>(DEFAULT_FILTERS);
+
+  // 6. AI Modal state
+  const [isAiModalOpen, setIsAiModalOpen] = useState<boolean>(false);
+
+  // 7. Recent recipes state
+  const [recentRecipes, setRecentRecipes] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('sisa_kulkas_recent');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const openAiModal = () => setIsAiModalOpen(true);
+  const closeAiModal = () => setIsAiModalOpen(false);
+
+  const addRecentRecipe = (id: string) => {
+    setRecentRecipes((prev) => {
+      const filtered = prev.filter((r) => r !== id);
+      const updated = [id, ...filtered].slice(0, 10);
+      try {
+        localStorage.setItem('sisa_kulkas_recent', JSON.stringify(updated));
+      } catch {
+        // Ignore storage errors
+      }
+      return updated;
+    });
+  };
 
   // Sync ingredients to localStorage
   useEffect(() => {
@@ -171,6 +205,11 @@ export const RecipeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         favorites,
         theme,
         filterState,
+        isAiModalOpen,
+        recentRecipes,
+        openAiModal,
+        closeAiModal,
+        addRecentRecipe,
         addIngredient,
         removeIngredient,
         clearIngredients,

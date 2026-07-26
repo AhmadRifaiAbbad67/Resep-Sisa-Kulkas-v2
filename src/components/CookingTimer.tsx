@@ -37,6 +37,13 @@ export const CookingTimer: React.FC = () => {
     };
   }, [isRunning, timeLeft, showToast]);
 
+  // Pause timer saat user pindah halaman
+  useEffect(() => {
+    return () => {
+      setIsRunning(false);
+    };
+  }, []);
+
   const handleSelectMinutes = (mins: number) => {
     setTargetMinutes(mins);
     setTimeLeft(mins * 60);

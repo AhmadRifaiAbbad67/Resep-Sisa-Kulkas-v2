@@ -21,10 +21,7 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
-
-  // Skip chrome-extension and non-http requests
   if (!event.request.url.startsWith('http')) return;
-
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       const fetchPromise = fetch(event.request)
@@ -37,10 +34,7 @@ self.addEventListener('fetch', (event) => {
           }
           return networkResponse;
         })
-        .catch(() => {
-          return caches.match(event.request);
-        });
-
+        .catch(() => caches.match(event.request));
       return cachedResponse || fetchPromise;
     })
   );

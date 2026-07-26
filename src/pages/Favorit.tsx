@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Heart, Trash2, Search, ChefHat, Sparkles, ArrowLeft } from 'lucide-react';
+import { Heart, Search, ChefHat, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useRecipe } from '../context/RecipeContext';
 import { CardResep } from '../components/CardResep';
 
 export const Favorit: React.FC = () => {
-  const { favorites, toggleFavorite } = useRecipe();
+  const { favorites } = useRecipe();
   const [search, setSearch] = useState('');
 
   const filteredFavorites = favorites.filter((r) =>

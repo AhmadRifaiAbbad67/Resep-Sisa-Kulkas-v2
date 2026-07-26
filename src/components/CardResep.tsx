@@ -13,8 +13,8 @@ interface CardResepProps {
 
 export const CardResep: React.FC<CardResepProps> = ({
   recipe,
-  matchingCount = 0,
-  totalRecipeIngredientsCount = recipe.bahan.length,
+  matchingCount: _matchingCount = 0,
+  totalRecipeIngredientsCount: _totalRecipeIngredientsCount = recipe.bahan.length,
 }) => {
   const { isFavorite, toggleFavorite, userIngredients } = useRecipe();
   const favorite = isFavorite(recipe.id);
@@ -26,11 +26,6 @@ export const CardResep: React.FC<CardResepProps> = ({
       reqBahan.toLowerCase().includes(userBahan.toLowerCase())
     )
   );
-
-  const matchPercentage =
-    totalRecipeIngredientsCount > 0
-      ? Math.round((matchedUserIngredients.length / totalRecipeIngredientsCount) * 100)
-      : 0;
 
   return (
     <div

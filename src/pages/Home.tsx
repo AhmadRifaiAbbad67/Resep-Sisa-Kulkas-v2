@@ -1,26 +1,25 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ChefHat, Sparkles, AlertCircle, RotateCcw } from 'lucide-react';
 import { useRecipe } from '../context/RecipeContext';
+import { Recipe } from '../types';
 import { SearchBar } from '../components/SearchBar';
 import { TagBahan } from '../components/TagBahan';
 import { FilterBar } from '../components/FilterBar';
 import { CardResep } from '../components/CardResep';
-import { CardSkeleton } from '../components/CardSkeleton';
 import { AIRecipeModal } from '../components/AIRecipeModal';
 import { FoodWasteCounter } from '../components/FoodWasteCounter';
 
 export const Home: React.FC = () => {
-  const { recipes, userIngredients, filterState, resetFilters } = useRecipe();
-  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
+  const {
+    recipes,
+    userIngredients,
+    filterState,
+    resetFilters,
+    isAiModalOpen,
+    openAiModal,
+    closeAiModal,
+  } = useRecipe();
   const [activeTab, setActiveTab] = useState<'all' | 'match_only'>('all');
-  const [isLoading, setIsLoading] = useState(false);
-
-  // Trigger brief skeleton loading effect on filter/search change
-  useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => setIsLoading(false), 200);
-    return () => clearTimeout(timer);
-  }, [filterState, userIngredients, activeTab]);
 
   // Compute matches and filter recipes
   const processedRecipes = useMemo(() => {
@@ -122,7 +121,7 @@ export const Home: React.FC = () => {
           {/* Action trigger button */}
           <div className="pt-2 flex justify-center">
             <button
-              onClick={() => setIsAiModalOpen(true)}
+              onClick={openAiModal}
               className="px-6 py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-emerald-950 font-extrabold text-sm sm:text-base shadow-xl shadow-amber-500/25 transition-all duration-200 flex items-center gap-2.5 active:scale-95 cursor-pointer"
             >
               <Sparkles className="w-5 h-5 text-emerald-950 animate-bounce" />
@@ -139,7 +138,7 @@ export const Home: React.FC = () => {
         {/* Ingredient Search & Selection Module */}
         <section className="space-y-4">
           <SearchBar />
-          <TagBahan onOpenAiGenerator={() => setIsAiModalOpen(true)} />
+          <TagBahan onOpenAiGenerator={openAiModal} />
         </section>
 
         {/* Impact Counter Widget */}
@@ -192,9 +191,9 @@ export const Home: React.FC = () => {
                 }`}
               >
                 Hanya Cocok Bahan ({
-                  recipes.filter((r) =>
-                    r.bahan.some((b) =>
-                      userIngredients.some((u) => b.toLowerCase().includes(u.toLowerCase()))
+                  recipes.filter((r: Recipe) =>
+                    r.bahan.some((b: string) =>
+                      userIngredients.some((u: string) => b.toLowerCase().includes(u.toLowerCase()))
                     )
                   ).length
                 })
@@ -204,9 +203,7 @@ export const Home: React.FC = () => {
           </div>
 
           {/* Recipe Grid */}
-          {isLoading ? (
-            <CardSkeleton count={6} />
-          ) : processedRecipes.length === 0 ? (
+          {processedRecipes.length === 0 ? (
             <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 sm:p-12 text-center border border-white/20 space-y-4 max-w-xl mx-auto shadow-2xl text-white">
               <div className="w-16 h-16 rounded-2xl bg-amber-500/20 border border-amber-400/30 text-amber-300 flex items-center justify-center mx-auto">
                 <AlertCircle className="w-8 h-8" />
@@ -230,7 +227,7 @@ export const Home: React.FC = () => {
                 </button>
 
                 <button
-                  onClick={() => setIsAiModalOpen(true)}
+                  onClick={openAiModal}
                   className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-emerald-950 font-extrabold text-xs sm:text-sm shadow-lg shadow-amber-500/20 transition-all active:scale-95 cursor-pointer"
                 >
                   <Sparkles className="w-4 h-4 text-emerald-950" />
@@ -240,7 +237,7 @@ export const Home: React.FC = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {processedRecipes.map(({ recipe, matchingCount, totalCount }) => (
+              {processedRecipes.map(({ recipe, matchingCount, totalCount }: { recipe: Recipe; matchingCount: number; totalCount: number }) => (
                 <CardResep
                   key={recipe.id}
                   recipe={recipe}
@@ -256,7 +253,7 @@ export const Home: React.FC = () => {
       </main>
 
       {/* AI Recipe Generator Modal */}
-      <AIRecipeModal isOpen={isAiModalOpen} onClose={() => setIsAiModalOpen(false)} />
+      <AIRecipeModal isOpen={isAiModalOpen} onClose={closeAiModal} />
 
     </div>
   );

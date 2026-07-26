@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Refrigerator, Home, ArrowLeft } from 'lucide-react';
+import { Refrigerator, Home } from 'lucide-react';
 
 export const NotFound: React.FC = () => {
   return (

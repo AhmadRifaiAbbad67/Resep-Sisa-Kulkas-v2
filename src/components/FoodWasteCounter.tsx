@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { Leaf, Award, Info, Sparkles } from 'lucide-react';
+import { useRecipe } from '../context/RecipeContext';
 
 export const FoodWasteCounter: React.FC = () => {
   const [showInfo, setShowInfo] = useState(false);
+  const { userIngredients, favorites } = useRecipe();
 
-  // Calculate estimated saved waste based on app interactions
-  // Baseline assumption: each recipe cooked saves approx 0.35kg of food waste
-  const savedKg = 3.8;
-  const savedEmissions = 7.2; // kg CO2 equivalent
+  // Calculate estimated saved waste based on app interactions dynamically
+  const savedKg = (3.5 + userIngredients.length * 0.4 + favorites.length * 0.3).toFixed(1);
+  const savedEmissions = (Number(savedKg) * 1.9).toFixed(1);
 
   return (
     <div className="bg-gradient-to-r from-emerald-900/80 via-emerald-800/80 to-emerald-900/80 backdrop-blur-2xl rounded-3xl p-5 border border-amber-400/30 shadow-2xl text-white space-y-3 relative overflow-hidden">

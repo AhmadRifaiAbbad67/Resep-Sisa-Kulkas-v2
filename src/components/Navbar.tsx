@@ -8,13 +8,15 @@ interface NavbarProps {
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ onOpenAiGenerator }) => {
-  const { favorites, theme, toggleTheme } = useRecipe();
+  const { favorites, theme, toggleTheme, openAiModal } = useRecipe();
   const location = useLocation();
+
+  const handleOpenAi = onOpenAiGenerator || openAiModal;
 
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <header className="sticky top-0 z-40 bg-white/10 backdrop-blur-xl text-white shadow-2xl border-b border-white/20 transition-all">
+    <header className="sticky top-0 z-40 bg-white/10 backdrop-blur-xl text-white shadow-2xl border-b border-white/20 transition-all no-print">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           
@@ -36,15 +38,13 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAiGenerator }) => {
           {/* Navigation Items */}
           <nav className="flex items-center gap-2 sm:gap-3">
             {/* AI Generator Button */}
-            {onOpenAiGenerator && (
-              <button
-                onClick={onOpenAiGenerator}
-                className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-emerald-950 font-bold text-xs sm:text-sm shadow-lg shadow-amber-500/20 transition-all active:scale-95 cursor-pointer"
-              >
-                <Sparkles className="w-4 h-4 text-emerald-950 animate-pulse" />
-                <span>Koki AI</span>
-              </button>
-            )}
+            <button
+              onClick={handleOpenAi}
+              className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-emerald-950 font-bold text-xs sm:text-sm shadow-lg shadow-amber-500/20 transition-all active:scale-95 cursor-pointer"
+            >
+              <Sparkles className="w-4 h-4 text-emerald-950 animate-pulse" />
+              <span>Koki AI</span>
+            </button>
 
             {/* Home Link */}
             <Link
@@ -71,7 +71,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAiGenerator }) => {
               <Heart className={`w-4 h-4 ${favorites.length > 0 ? 'fill-amber-400 text-amber-400' : ''}`} />
               <span className="hidden md:inline">Favorit</span>
               {favorites.length > 0 && (
-                <span className="bg-amber-400 text-emerald-950 font-bold text-[11px] px-1.5 py-0.2 rounded-full min-w-[18px] text-center shadow-sm">
+                <span className="bg-amber-400 text-emerald-950 font-bold text-[11px] px-1.5 py-0.5 rounded-full min-w-[18px] text-center shadow-sm">
                   {favorites.length}
                 </span>
               )}
@@ -81,7 +81,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAiGenerator }) => {
             <button
               onClick={toggleTheme}
               aria-label="Toggle Dark Mode"
-              className="p-2 rounded-xl text-emerald-100 hover:bg-white/10 transition-colors"
+              className="p-2 rounded-xl text-emerald-100 hover:bg-white/10 transition-colors cursor-pointer"
               title={theme === 'dark' ? 'Ganti ke Mode Terang' : 'Ganti ke Mode Gelap'}
             >
               {theme === 'dark' ? (

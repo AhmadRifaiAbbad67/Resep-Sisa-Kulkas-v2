@@ -9,12 +9,17 @@ interface TagBahanProps {
 }
 
 export const TagBahan: React.FC<TagBahanProps> = ({ onOpenAiGenerator }) => {
-  const { userIngredients, removeIngredient, addIngredient, clearIngredients } = useRecipe();
+  const { userIngredients, removeIngredient, addIngredient, clearIngredients, openAiModal } = useRecipe();
   const { showToast } = useToast();
 
+  const handleOpenAi = onOpenAiGenerator || openAiModal;
+
   const handleClear = () => {
-    clearIngredients();
-    showToast('Isi kulkas dibersihkan', 'info');
+    if (userIngredients.length === 0) return;
+    if (window.confirm('Hapus semua bahan dari kulkas?')) {
+      clearIngredients();
+      showToast('Isi kulkas dibersihkan', 'info');
+    }
   };
 
   const handleToggle = (item: string) => {
@@ -109,28 +114,26 @@ export const TagBahan: React.FC<TagBahanProps> = ({ onOpenAiGenerator }) => {
       </div>
 
       {/* AI Callout Bar */}
-      {onOpenAiGenerator && (
-        <div className="mt-5 p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-lg">
-          <div className="flex items-center gap-3 text-white text-xs sm:text-sm">
-            <div className="w-9 h-9 rounded-xl bg-amber-500 flex items-center justify-center shrink-0 shadow-md shadow-amber-500/20">
-              <Sparkles className="w-5 h-5 text-emerald-950" />
-            </div>
-            <div>
-              <span className="font-extrabold text-white text-sm">Punya bahan unik lainnya?</span>
-              <p className="text-xs text-emerald-200/90">
-                Gunakan Koki AI untuk buatkan resep kustom dari bahan apa saja di kulkasmu!
-              </p>
-            </div>
+      <div className="mt-5 p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-lg">
+        <div className="flex items-center gap-3 text-white text-xs sm:text-sm">
+          <div className="w-9 h-9 rounded-xl bg-amber-500 flex items-center justify-center shrink-0 shadow-md shadow-amber-500/20">
+            <Sparkles className="w-5 h-5 text-emerald-950" />
           </div>
-          <button
-            onClick={onOpenAiGenerator}
-            className="w-full sm:w-auto px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-emerald-950 font-bold text-xs transition-all shrink-0 flex items-center justify-center gap-1.5 shadow-md shadow-amber-500/20 active:scale-95 cursor-pointer"
-          >
-            <Sparkles className="w-4 h-4 text-emerald-950" />
-            <span>Racik resep AI</span>
-          </button>
+          <div>
+            <span className="font-extrabold text-white text-sm">Punya bahan unik lainnya?</span>
+            <p className="text-xs text-emerald-200/90">
+              Gunakan Koki AI untuk buatkan resep kustom dari bahan apa saja di kulkasmu!
+            </p>
+          </div>
         </div>
-      )}
+        <button
+          onClick={handleOpenAi}
+          className="w-full sm:w-auto px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-emerald-950 font-bold text-xs transition-all shrink-0 flex items-center justify-center gap-1.5 shadow-md shadow-amber-500/20 active:scale-95 cursor-pointer"
+        >
+          <Sparkles className="w-4 h-4 text-emerald-950" />
+          <span>Racik resep AI</span>
+        </button>
+      </div>
     </div>
   );
 };

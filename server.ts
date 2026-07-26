@@ -72,7 +72,6 @@ async function startServer() {
       const parsed = JSON.parse(text);
 
       // Add default photo URL and generated ID
-      const photoKeywords = encodeURIComponent(parsed.nama || 'indonesian food');
       const recipe = {
         id: 'ai-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
         nama: parsed.nama || 'Resep Kreasi Sisa Kulkas',
@@ -165,7 +164,7 @@ async function startServer() {
   } else {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
-    app.get('*', (req, res) => {
+    app.get('*', (_req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
