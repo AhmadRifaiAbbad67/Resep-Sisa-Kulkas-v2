@@ -133,7 +133,7 @@ export const AIRecipeModal: React.FC<AIRecipeModalProps> = ({ isOpen, onClose })
                 Koki AI Resep Sisa Kulkas
               </h2>
               <p className="text-xs text-emerald-200/90">
-                Generator resep real-time berbasis Google Gemini 2.5 Flash
+                Generator resep real-time berbasis Google Gemini AI
               </p>
             </div>
           </div>

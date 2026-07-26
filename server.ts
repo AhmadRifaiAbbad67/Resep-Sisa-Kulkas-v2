@@ -37,7 +37,7 @@ async function startServer() {
       const prompt = `Buatkan 1 resep masakan khas Indonesia yang paling lezat, praktis, dan hemat menggunakan bahan-bahan sisa kulkas berikut: ${ingredients.join(', ')}. ${extraNotes ? `Catatan tambahan: ${extraNotes}` : ''}`;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3.6-flash',
+        model: 'gemini-2.5-flash',
         contents: prompt,
         config: {
           systemInstruction: 'Kamu adalah Koki Utama "Resep Sisa Kulkas". Tugasmu menciptakan resep masakan rumah Indonesia yang kreatif, mudah diikuti, lezat, dan menghemat bahan sisa.',
@@ -130,7 +130,7 @@ async function startServer() {
 [Tips bermanfaat agar makanan tidak terbuang]`;
 
       const responseStream = await ai.models.generateContentStream({
-        model: 'gemini-3.6-flash',
+        model: 'gemini-2.5-flash',
         contents: prompt,
         config: {
           systemInstruction: 'Kamu adalah Koki Utama "Resep Sisa Kulkas" yang memberikan resep kreasi menarik secara cepat dan menginspirasi.',
